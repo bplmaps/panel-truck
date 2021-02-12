@@ -57,8 +57,6 @@ import Static from 'ol/source/ImageStatic';
 import XYZ from 'ol/source/XYZ';
 import TileJSON from 'ol/source/TileJSON';
 
-import {isEqual} from 'lodash';
-
 import MarkdownIt from 'markdown-it';
 
 const md = new MarkdownIt();
@@ -106,7 +104,7 @@ export default {
         let c = `<p><strong>${this.screenplay.metadata.title}</strong></p>`;
         if(this.screenplay.metadata.author){ c += `<p>by ${this.screenplay.metadata.author}</p>` }
         if(this.screenplay.metadata.publishedDate){ c += `<p>published on ${this.screenplay.metadata.publishedDate}</p>` }
-        c += `<p class="small-credit">Created with panel-truck 0.1, <a href="https://leventhalmap.org">Leventhal Map and Education Center</a> at the Boston Public Library</p>`;
+        c += `<p class="small-credit">Created with panel-truck 0.2, <a href="https://leventhalmap.org">Leventhal Map and Education Center</a> at the Boston Public Library</p>`;
         return c;
       } else {
         let thisScene = this.screenplay.scenes[this.currentScene];
@@ -123,7 +121,7 @@ export default {
       if(!this.validated || this.currentScene < 0 || this.curentScene >= this.screenplay.scenes.length ){
         return "";
       } else {
-        return this.screenplay.scenes[this.currentScene].moreInfo ? this.screenplay.scenes[this.currentScene].moreInfo : "";
+        return this.screenplay.scenes[this.currentScene].moreInfo ? this.screenplay.scenes[this.currentScene].moreInfo : this.screenplay.sources.filter(d=>{return d.id === this.screenplay.scenes[this.currentScene].source})[0].moreInfo ? this.screenplay.sources.filter(d=>{return d.id === this.screenplay.scenes[this.currentScene].source})[0].moreInfo : "";
       }
     }
   },
@@ -134,7 +132,7 @@ export default {
         .then(r => r.json())
         .then(r => {
           try {
-          if(typeof r.metadata === "object" && Array.isArray(r.scenes)) {
+          if(typeof r.metadata === "object" && Array.isArray(r.sources) && Array.isArray(r.scenes)) {
             this.inError = false;
             this.validated = true;
             this.screenplay = r;
@@ -185,16 +183,16 @@ export default {
       let currentSceneSource;
 
       if(this.currentScene === -1) {
-        currentSceneSource = this.screenplay.scenes[0].sceneSource;
+        currentSceneSource = this.screenplay.scenes[0].source;
       } else if(this.currentScene === this.screenplay.scenes.length) {
-        currentSceneSource = this.screenplay.scenes[this.currentScene - 1].sceneSource;
+        currentSceneSource = this.screenplay.scenes[this.currentScene - 1].source;
       } else {
-        currentSceneSource = this.screenplay.scenes[this.currentScene].sceneSource;
+        currentSceneSource = this.screenplay.scenes[this.currentScene].source;
       }
       
       this.currentScene = nextSceneNumber;
 
-      if( initial || !(isEqual(currentSceneSource, this.screenplay.scenes[nextFunctionalScene].sceneSource)) ) {
+      if( initial || currentSceneSource != this.screenplay.scenes[nextFunctionalScene].source ) {
         this.changeSource(nextFunctionalScene)
           .then(() => { this.changeExtent(nextFunctionalScene) });
       } else {
@@ -206,14 +204,14 @@ export default {
 
     changeSource: function(sceneNumber) {
       return new Promise((resolve, reject) => {
-      let newSource = this.screenplay.scenes[sceneNumber].sceneSource;
-      if(newSource.sourceType.toLowerCase() === 'iiif') {
-        if(newSource['iiifManifest']) {
-            let sequence = newSource['iiifManifest'].sequence ? newSource['iiifManifest'].sequence : 0;
-            let canvas = newSource['iiifManifest'].canvas ? newSource['iiifManifest'].canvas : 0;
-            let image = newSource['iiifManifest'].image ? newSource['iiifManifest'].image : 0;
+      let newSource = this.screenplay.sources.filter(d=>{return d.id === this.screenplay.scenes[sceneNumber].source})[0];
+      if(newSource.type.toLowerCase() === 'iiifmanifest') {
 
-            fetch(newSource['iiifManifest'].manifest)
+          let sequence = newSource.sequence ? newSource.sequence : 0;
+          let canvas = newSource.canvas ? newSource.canvas : 0;
+          let image = newSource.image ? newSource.image : 0;
+
+          fetch(newSource.manifest)
               .then(r => r.json())
               .then(m => {
                   let imageEndpoint = m.sequences[sequence].canvases[canvas].images[image].resource.service['@id'];
@@ -222,21 +220,16 @@ export default {
                     .catch(reject);
               })
               .catch(reject);
-        } else if(newSource['iiifImage']) {
-          this.loadNewIIIF(newSource['iiifImage'].image)
+      } else if(newSource.type.toLowerCase() === 'iiifimage') {
+          this.loadNewIIIF(newSource.imageEndpoint)
                     .then(resolve)
                     .catch(reject);
-        } else {
-          this.inError = true;
-          reject();
-        }
-
       }
-      else if(newSource.sourceType.toLowerCase() === "image") {
-        this.loadNewImage(newSource.imageSource)
+      else if(newSource.type.toLowerCase() === "staticimage") {
+        this.loadNewImage(newSource.imageFile)
           .then(resolve)
           .catch(reject);
-      } else if(newSource.sourceType.toLowerCase() === "geomap"){
+      } else if(newSource.type.toLowerCase() === "geomap"){
         this.loadNewGeoMap(newSource)
           .then(resolve)
           .catch(reject);

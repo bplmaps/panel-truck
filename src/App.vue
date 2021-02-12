@@ -1,6 +1,6 @@
 <template>
   <div style="width:1000px;height:800px;">
-    <panel-truck screenplaySrc="https://gist.githubusercontent.com/garrettdashnelson/73b32f40cccbe30239838dd3bd63988a/raw/7d4f7efc52ee0bb0929110a4438c37d8c98f0aa5/test-screenplay.json"></panel-truck>
+    <panel-truck screenplaySrc="https://gist.githubusercontent.com/garrettdashnelson/725fa9dd3ff1987458fda4d8183236e7/raw/c36da07c2970f0a0bcbd2d58b4df96930a81098a/paneltruck-0.2-screenplay.json"></panel-truck>
   </div>
 </template>
 

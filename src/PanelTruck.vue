@@ -380,6 +380,10 @@ export default {
   font-size: 1.0rem;
 }
 
+figure {
+  margin: 0
+}
+
 .hidden {
   display: none;
 }

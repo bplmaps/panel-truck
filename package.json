@@ -6,12 +6,14 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "build-wc": "vue-cli-service build --target wc --name panel-truck ./src/PanelTruck.vue"
+    "build-wc-without-vue": "vue-cli-service build --target wc --name panel-truck ./src/PanelTruck.vue",
+    "build-wc-with-vue": "vue-cli-service build --target wc --inline-vue --name panel-truck ./src/PanelTruck.vue"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.32",
     "@fortawesome/free-solid-svg-icons": "^5.15.1",
     "@fortawesome/vue-fontawesome": "^2.0.2",
+    "@vue/cli": "^4.5.13",
     "core-js": "^3.6.5",
     "markdown-it": "^12.0.4",
     "ol": "^6.4.3",

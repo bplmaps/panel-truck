@@ -8,7 +8,7 @@ See an [example Panel Truck presentation](https://geoservices.leventhalmap.org/p
 
 ## Documentation 
 
-See documentation on the [LMEC Cartinal documentation portal](https://cartinal.leventhalmap.org/documentation/panel-truck.html).
+See documentation on this page's [GitHub Wiki](https://cartinal.leventhalmap.org/documentation/panel-truck.html).
 
 ## License
 
